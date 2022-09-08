@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { studentList } from "@/api/api.js";
+import { students } from "@/api/api.js";
 import PageTable from "@/components/pageTable.vue";
 export default {
   components: {
@@ -116,12 +116,12 @@ export default {
       this.dialogVisible = true;
     },
     search() {
-      studentList({
-        title: this.name,
-      }).then((res) => {
-        this.tableData = res.data.list;
-        this.pager.total = res.data.total;
-      });
+      students({ manager_name: this.manager_name, name: this.name }).then(
+        (res) => {
+          this.tableData = res.data.list;
+          this.pager.total = res.data.total;
+        }
+      );
     },
     submit() {
       this.$refs["ruleForm"].validate((valid) => {

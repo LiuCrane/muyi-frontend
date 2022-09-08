@@ -25,12 +25,10 @@
       </PageTable>
     </div>
     <el-dialog
-      class="dialog"
       title="班级"
       :visible.sync="dialogVisible"
       width="30%"
       :before-close="handleClose"
-      center
     >
       <el-form
         :model="ruleForm"
@@ -38,7 +36,6 @@
         ref="ruleForm"
         label-width="100px"
         class="demo-ruleForm"
-        :label-position="labelPosition" 
       >
         <el-form-item label="店长" prop="manager_name">
           <el-input v-model="ruleForm.manager_name"></el-input>
@@ -70,7 +67,6 @@ export default {
   },
   data() {
     return {
-      labelPosition:'left',
       ruleForm: {},
       rules: {
         manager_name: [
@@ -147,12 +143,7 @@ export default {
 ::v-deep .el-dialog {
   box-shadow: 10px 10px 30px rgb(0 0 0 / 25%);
   border-radius: 30px;
-    
 }
-.dialog ::v-deep .el-input__inner{
-      background-color:#F4F7FF ;
-      border:none
-    }
 .page {
   .search {
     display: flex;

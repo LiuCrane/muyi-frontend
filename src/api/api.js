@@ -31,6 +31,9 @@ export function uploadInfo(params) {
 export function login(params) {
     return http.post(`/admin/auth/login`, params)
 }
+export function getUserInfo() {
+    return http.get(`/admin/me`)
+}
 // post请求
 export function cancel(id) {
     return http.post(`/admin/stores/${id}/cancel`)
@@ -39,8 +42,14 @@ export function cancel(id) {
 export function mediaList(params) {
     return http.get(`/admin/media`, params)
 }
+export function newMedia(params) {
+    return http.post(`/admin/media`, params)
+}
 export function storesUpdate(id, params) {
     return http.put(`/admin/stores/${id}`, params)
+}
+export function categories() {
+    return http.get(`/admin/media/categories`)
 }
 export function upload(id, params) {
     return http.put(`/admin/stores/${id}`, params)
@@ -62,4 +71,16 @@ export function putSomeAPI(params) {
 // delete 请求
 export function deleteListAPI(params) {
     return http.delete(`/deleteList.json`, params)
+}
+
+//审核列表
+export function veriList(params) {
+    return http.get(`/admin/applications`, params)
+}
+// 审核申请 
+export function veriRequest(params) {
+    return http.post(`/admin/applications/audit`,params)
+}
+export function veriCount() {
+    return http.get(`/admin/get_application_count`)
 }

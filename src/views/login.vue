@@ -30,29 +30,23 @@ export default {
   data() {
     return {
       form: {
-        name: "admin",
-        password: "my@admin",
+        name: "",
+        password: "",
       },
       rules: {
         name: [
-          {
-            required: true,
-            message: "请输入用户名",
-            trigger: "blur",
-          },
+          {required: true,message: "请输入用户名",trigger: "blur",},
+          // {min:3,max:12,message:"长度在3-12个字符",trigger:"blur"}
         ],
         password: [
-          {
-            required: true,
-            message: "请输入密码",
-            trigger: "blur",
-          },
+          {required: true, message: "请输入密码",trigger: "blur",},
         ],
       },
     };
   },
   methods: {
     submitForm() {
+
       this.$refs["form"].validate((valid) => {
         if (valid) {
           login({
@@ -60,11 +54,18 @@ export default {
             password: this.form.password,
           })
             .then((res) => {
+              if(res.code==400102){
+                  this.$message({
+                  message: "用户名或密码错误",
+                  type: "warning",
+                });
+              }              
               this.$cookie.set("menuIndex", 0);
               this.$cookie.set("token", res.data.token);
-              this.$router.push("/");
+              this.$router.push("/");                         
             })
-            .catch((err) => {});
+            .catch((err) => {              
+            });
         } else {
           this.$message({
             message: "用户名或密码错误",

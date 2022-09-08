@@ -34,37 +34,48 @@
       </PageTable>
     </div>
     <el-dialog
-      class="dialog"
       title="媒体管理"
       :visible.sync="dialogVisible"
-      width="45%"
+      width="30%"
       :before-close="handleClose"
     >
       <el-form
         :model="ruleForm"
         :rules="rules"
         ref="ruleForm"
-        label-width="80px"
+        label-width="100px"
         class="demo-ruleForm"
-        :label-position="labelPosition"  
       >
-      <div style="display:inline-block;width:45%;">
         <el-form-item label="标题" prop="title">
           <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
         <el-form-item label="类型" prop="type">
-          <el-input v-model="ruleForm.type"></el-input>
+          <el-select v-model="ruleForm.type" placeholder="请选择">
+            <el-option
+              v-for="item in fileType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="分类" prop="category">
-          <el-input v-model="ruleForm.category"></el-input>
+          <el-select v-model="ruleForm.category" placeholder="请选择">
+            <el-option
+              v-for="item in options"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="时长" prop="duration">
           <el-input v-model="ruleForm.duration"></el-input>
         </el-form-item>
-      </div>
-     <div style="display:inline-block;width:46%;margin-left:4%;">
-      <el-form-item label="源文件" prop="url">
-          <el-input v-model="ruleForm.url"></el-input>
+        <el-form-item label="源文件" prop="url">
+          <el-input v-model="ruleForm.url" placeholder="媒体链接，请在cos 获取"></el-input>
         </el-form-item>
         <el-form-item label="封面" prop="img">
           <el-upload
@@ -78,7 +89,6 @@
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
         </el-form-item>
-     </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -90,7 +100,6 @@
       :visible.sync="dialogVisible2"
       width="30%"
       :before-close="handleClose2"
-      center
     >
       <span>是否确认删除该数据？</span>
       <span slot="footer" class="dialog-footer">
@@ -103,7 +112,14 @@
 
 <script>
 import axios from "axios";
-import { mediaList, uploadInfo, mediaUpdate, mediaDelete } from "@/api/api.js";
+import {
+  mediaList,
+  uploadInfo,
+  mediaUpdate,
+  mediaDelete,
+  categories,
+  newMedia,
+} from "@/api/api.js";
 import PageTable from "@/components/pageTable.vue";
 export default {
   components: {
@@ -111,14 +127,16 @@ export default {
   },
   data() {
     return {
-      labelPosition:'left',
+      newData: false,
+      options: [],
+      fileType:[{value:'VIDEO',label:'视频'},{value:'AUDIO',label:'音频'}],
       url: "",
       dialogVisible: false,
       dialogVisible2: false,
       rules: {
         title: [{ required: true, message: "请输入标题", trigger: "blur" }],
-        type: [{ required: true, message: "请输入类型", trigger: "blur" }],
-        category: [{ required: true, message: "请输入分类", trigger: "blur" }],
+        type: [{ required: true, message: "请选择类型", trigger: "blur" }],
+        category: [{ required: true, message: "请选择分类", trigger: "blur" }],
         duration: [{ required: true, message: "请输入时长", trigger: "blur" }],
         url: [{ required: true, message: "请输入源文件", trigger: "blur" }],
         img: [{ required: true, message: "请输入封面", trigger: "blur" }],
@@ -144,16 +162,6 @@ export default {
         total: 11, //列表总数
       },
       value1: [new Date(2000, 10, 10, 10, 10), new Date(2000, 10, 11, 10, 10)],
-      options: [
-        {
-          value: "1",
-          label: "管理员",
-        },
-        {
-          value: "2",
-          label: "学员",
-        },
-      ],
       imageUrl: "",
       uploadFile: "",
       key: "",
@@ -161,8 +169,11 @@ export default {
   },
   methods: {
     add() {
+      this.imageUrl = "";
+      this.newData = true;
       this.ruleForm = {};
       this.dialogVisible = true;
+      console.log("添加")
     },
     mediaDelete() {
       mediaDelete(this.ruleForm).then((res) => {
@@ -175,16 +186,37 @@ export default {
       });
     },
     submit() {
-      this.$refs["ruleForm"].validate((valid) => {
-        if (valid) {
-          mediaUpdate(this.ruleForm.id, { ...this.ruleForm }).then((res) => {
-            this.search();
-          });
-        } else {
-          console.log("error submit!!");
-          return false;
-        }
-      });
+      if (this.newData) {
+        let data = { ...this.ruleForm };
+        data.duration_actual = data.duration;
+        data.category_id = data.category;
+        this.$refs["ruleForm"].validate((valid) => {
+          if (valid) {
+            newMedia({ ...data }).then((res) => {
+              this.search();
+
+              this.dialogVisible = false;
+            });
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      } else {
+        let data = { ...this.ruleForm };
+        data.duration = data.duration.slice(6);
+        this.$refs["ruleForm"].validate((valid) => {
+          if (valid) {
+            mediaUpdate(this.ruleForm.id, { ...data }).then((res) => {
+              this.search();
+              this.dialogVisible = false;
+            });
+          } else {
+            console.log("error submit!!");
+            return false;
+          }
+        });
+      }
     },
     handleClose() {
       this.dialogVisible = false;
@@ -197,11 +229,13 @@ export default {
       mediaList({
         title: this.title,
       }).then((res) => {
+        console.log( res.data)
         this.tableData = res.data.list;
         this.pager.total = res.data.total;
       });
     },
     edit(data) {
+      this.newData = false;
       this.ruleForm = { ...data };
       this.dialogVisible = true;
     },
@@ -246,6 +280,9 @@ export default {
   },
   mounted() {
     this.search();
+    categories().then((res) => {
+      this.options = res.data;
+    });
   },
 };
 </script>
@@ -254,17 +291,7 @@ export default {
 ::v-deep .el-dialog {
   box-shadow: 10px 10px 30px rgb(0 0 0 / 25%);
   border-radius: 30px;
-  text-align: center
 }
-.dialog ::v-deep .el-input__inner{
-      background-color:#F4F7FF ;
-      border:none
-    }
-    .dialog ::v-deep   .el-upload{
-      background-color:#F4F7FF ;
-      width: 100%;
-      height:150px;
-    }
 .avatar-uploader {
   ::v-deep .el-upload {
     border: 1px dashed #d9d9d9;

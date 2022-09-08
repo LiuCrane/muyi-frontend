@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 布局
 import Layout from "@/components/layout.vue";
+
 Vue.use(VueRouter)
 
 const routes = [{
@@ -38,6 +39,11 @@ const routes = [{
         name: "college",
         component: () => import('../views/college.vue')
       },
+      {
+        path: "/veri",
+        name: "veri",
+        component: () => import('../views/veri.vue')
+      },
     ],
   },
   {
@@ -48,7 +54,7 @@ const routes = [{
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  mode: 'hash', //history
   base: process.env.BASE_URL,
   routes
 })

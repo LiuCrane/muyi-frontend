@@ -5,29 +5,26 @@
         <svg-icon icon-class="bigeye" className="icon"></svg-icon>目益视力
       </div>
       <div class="menuList">
-        <div
-          @click="tabMenu(index)"
-          class="menuItem"
-          v-for="(item, index) in menuList"
-          :class="{ active: menuIndex === index }"
-          :key="index + 'menu'"
-        >
+        <div @click="tabMenu(index)" class="menuItem" v-for="(item, index) in menuList"
+          :class="{ active: menuIndex === index }" :key="index + 'menu'">
           {{ item.name }}
         </div>
       </div>
       <div class="footerMenu">
         <img src="@/assets/img/avatar.png" />
         <div class="name">{{ info.name }}</div>
-        <div class="iconfont icon-gengduo"></div>
+        <div class="iconfont icon-gengduo" @click="logout"></div>
       </div>
     </div>
     <div class="right">
       <div class="top">
-        <div class="iconDiv">
-          <svg-icon icon-class="bell" className="bell"></svg-icon>5
+        <div class="iconDiv" @click="gotoVeri">
+          <svg-icon icon-class="bell" className="bell"></svg-icon>{{count}}
         </div>
       </div>
-      <div class="main"><router-view></router-view></div>
+      <div class="main">
+        <router-view></router-view>
+      </div>
     </div>
   </div>
 </template>
@@ -41,12 +38,14 @@ body {
 </style>
 
 <script>
+import { getUserInfo, veriCount } from "@/api/api.js";
 export default {
   data() {
     return {
       info: {
-        name: "何增辉",
+        name: ""
       },
+      count: 0,
       menuList: [
         {
           name: "首页",
@@ -70,6 +69,10 @@ export default {
         },
         {
           name: "学员管理",
+          url: "/home",
+        },
+        {
+          name: "申请审核",
           url: "/home",
         },
       ],
@@ -99,18 +102,55 @@ export default {
         case 5:
           this.$router.push("/college");
           break;
+        case 6:
+          this.$router.push("/veri");
+          break;
       }
     },
+    gotoVeri() {
+      if (this.menuIndex != 6) {
+        this.menuIndex = 6;
+        this.$router.push("/veri");
+      }
+    },
+    logout(){
+
+      console.log(this.$cookie)
+    //   getUserInfo(Authorization:this.$cookie).then((res) => {
+    //   this.info = res.data;
+    // });
+    // 清空token
+        // var storage = window.localStorage;
+        // storage.clear();
+
+
+        // Cookies.removeItem('token');
+        this.$cookie.remove('token')
+        // localStorage.setItem("token", "")
+
+      // 跳转到登录页
+      this.$router.push('/login')
+    }
   },
   created() {
     this.menuIndex = Number(this.$cookie.get("menuIndex"));
+    getUserInfo().then((res) => {
+      this.info = res.data;
+    });
+
   },
+  updated() {
+
+    veriCount().then((res) => {
+      this.count = res.data;
+    });
+  }
 };
 </script>
 <style scoped lang="scss">
 .layout {
   display: flex;
-  
+
   .menu {
     position: relative;
     background: #fff;
@@ -118,6 +158,7 @@ export default {
     height: 100vh;
     padding: 30px;
     box-sizing: border-box;
+
     .logoDiv {
       font-family: "Noto Sans SC";
       font-style: normal;
@@ -127,8 +168,10 @@ export default {
       display: flex;
       align-items: center;
     }
+
     .menuList {
       margin-top: 100px;
+
       .menuItem {
         margin-bottom: 10px;
         cursor: pointer;
@@ -144,11 +187,13 @@ export default {
         color: #000000;
         line-height: 52px;
         text-align: left;
+
         &.active {
           background: #d7dfff;
         }
       }
     }
+
     .footerMenu {
       font-family: "Noto Sans SC";
       font-style: normal;
@@ -156,7 +201,7 @@ export default {
       font-size: 18px;
       color: #000000;
       position: absolute;
-      bottom: 20px;
+      bottom: 30px;
       left: 0;
       width: 240px;
       display: flex;
@@ -166,18 +211,21 @@ export default {
       box-sizing: border-box;
     }
   }
+
   .right {
-    background: #F7F7F7;
-    height: 102vh;
+    background: #e6e6e6;
+    height: 100vh;
     flex: 1;
     padding: 20px;
     box-sizing: border-box;
+
     .top {
       display: flex;
       align-items: center;
       justify-content: right;
       margin-top: 10px;
       margin-bottom: 30px;
+
       .iconDiv {
         padding-right: 10px;
         display: flex;
@@ -185,8 +233,6 @@ export default {
         justify-content: right;
       }
     }
-
   }
-  
 }
 </style>
