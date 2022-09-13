@@ -122,7 +122,14 @@ export default {
     handleClose() {
       this.dialogVisible = false;
     },
-    loadTable() {},
+    loadTable(param) {
+      this.pager.currentPage = param;
+      this.search()
+    },
+    loadTableReSize(param){
+      this.pager.pageSize = param;
+      this.search()
+    },
     edit(data) {
       this.ruleForm = { ...data };
       this.dialogVisible = true;

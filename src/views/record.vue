@@ -71,7 +71,14 @@ export default {
     };
   },
   methods: {
-    loadTable() {},
+    loadTable(param) {
+      this.pager.currentPage = param;
+      this.search()
+    },
+    loadTableReSize(param){
+      this.pager.pageSize = param;
+      this.search()
+    },
     search() {
       browseRecords({
         user_id: this.value,

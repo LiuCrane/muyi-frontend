@@ -42,8 +42,13 @@ export function cancel(id) {
 export function mediaList(params) {
     return http.get(`/admin/media`, params)
 }
+// 新媒体文件上传
+// export function newMedia(params) {
+//     return http.post(`/admin/media`, params)
+// }
+
 export function newMedia(params) {
-    return http.post(`/admin/media`, params)
+    return http.put(`/admin/media`, params)
 }
 export function storesUpdate(id, params) {
     return http.put(`/admin/stores/${id}`, params)
@@ -83,4 +88,9 @@ export function veriRequest(params) {
 }
 export function veriCount() {
     return http.get(`/admin/get_application_count`)
+}
+
+// 学员详情
+export function studentInfo(params) {
+    return http.get(`/admin/students/students/${params}`)
 }

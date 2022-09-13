@@ -6,8 +6,6 @@
       :data="tableData"
       tooltip-effect="dark"
       style="width: 100%"
-      :row-class-name="tableRowClassName"
-      
     >
       <el-table-column
         v-if="indexShow"
@@ -67,14 +65,15 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      background
-      style="text-align: center;margin-top: 20px;"
+      style="text-align: center;margin: 20px 0;"
       :page-sizes="[5, 10, 15, 20]"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
+      @prev-lick="prevClick"
+      @next-lick="nextClick"
       :current-page.sync="pager.currentPage"
       :page-size.sync="pager.pageSize"
-      :hide-on-single-page="true"
+      :hide-on-single-page="false"
       layout="total, sizes, prev, pager, next, jumper"
       :total="pager.total"
     ></el-pagination>
@@ -130,13 +129,6 @@ export default {
     },
   },
   methods: {
-    tableRowClassName({ row, rowIndex }) {
-      if ((rowIndex + 1) % 2 === 0) {
-        return "double"; //  基数行对应的类
-      } else {
-        return "single"; //  偶数行对应的类
-      }
-    },
     getIndex(index) {
       return (this.pager.currentPage - 1) * this.pager.pageSize + 1 + index;
     },
@@ -151,25 +143,25 @@ export default {
     // size发生变化时，令currentPgae为1，并发送自定义事件
     handleSizeChange(val) {
       this.pager.currentPage = 1;
-      this.$emit("pagination", val);
+      this.$emit("paginationReSize", val);
     },
     // currentPage发生变化时，发送自定义事件
     handleCurrentChange(val) {
       this.$emit("pagination", val);
     },
+    prevClick(val){
+      this.pager.currentPage -=1
+      this.$emit("pagination", val);
+    },
+    nextClick(val){
+      this.pager.currentPage +=1
+      this.$emit("pagination", val);
+    }
   },
 };
 </script>
 <style>
-.double {
-  height: 50px;
-  background: #F5F8FE !important;
-  border:0px  !important;
-  border-radius: 10px;
-}
-.single {
-  height: 50px;
-  background: #ffffff !important;
-  border:0px  !important;
-}
+  el-pagination{
+    margin-top: 15px;
+  }
 </style>

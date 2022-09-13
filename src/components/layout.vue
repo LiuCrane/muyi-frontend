@@ -13,7 +13,7 @@
       <div class="footerMenu">
         <img src="@/assets/img/avatar.png" />
         <div class="name">{{ info.name }}</div>
-        <div class="iconfont icon-gengduo" @click="logout"></div>
+        <div class="iconfont icon-gengduo"></div>
       </div>
     </div>
     <div class="right">
@@ -112,24 +112,7 @@ export default {
         this.menuIndex = 6;
         this.$router.push("/veri");
       }
-    },
-    logout(){
 
-      console.log(this.$cookie)
-    //   getUserInfo(Authorization:this.$cookie).then((res) => {
-    //   this.info = res.data;
-    // });
-    // 清空token
-        // var storage = window.localStorage;
-        // storage.clear();
-
-
-        // Cookies.removeItem('token');
-        this.$cookie.remove('token')
-        // localStorage.setItem("token", "")
-
-      // 跳转到登录页
-      this.$router.push('/login')
     }
   },
   created() {
@@ -140,7 +123,6 @@ export default {
 
   },
   updated() {
-
     veriCount().then((res) => {
       this.count = res.data;
     });
@@ -209,6 +191,7 @@ export default {
       justify-content: space-between;
       padding: 0 30px;
       box-sizing: border-box;
+      // display: none;
     }
   }
 

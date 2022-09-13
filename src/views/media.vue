@@ -14,13 +14,9 @@
           <svg-icon icon-class="Plus_circle" className="Edit"></svg-icon>
         </div>
       </div>
-      <PageTable
-        :tableData="tableData"
-        :tableLabel="tableLabel"
-        :pager="pager"
-        @pagination="loadTable"
-        @handleButton="tableBtnHandle(arguments)"
-      >
+      <PageTable :tableData="tableData" :tableLabel="tableLabel" :pager="pager" @pagination="loadTable"
+      @paginationReSize = "loadTableReSize"
+        @handleButton="tableBtnHandle(arguments)">
         <template #edit="val">
           <div @click="edit(val.data)">
             <svg-icon icon-class="Edit" className="Edit"></svg-icon>
@@ -33,41 +29,20 @@
         </template>
       </PageTable>
     </div>
-    <el-dialog
-      title="媒体管理"
-      :visible.sync="dialogVisible"
-      width="30%"
-      :before-close="handleClose"
-    >
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="100px"
-        class="demo-ruleForm"
-      >
+    <el-dialog title="媒体管理" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item label="标题" prop="title">
           <el-input v-model="ruleForm.title"></el-input>
         </el-form-item>
         <el-form-item label="类型" prop="type">
           <el-select v-model="ruleForm.type" placeholder="请选择">
-            <el-option
-              v-for="item in fileType"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            >
+            <el-option v-for="item in fileType" :key="item.value" :label="item.label" :value="item.value">
             </el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="分类" prop="category">
           <el-select v-model="ruleForm.category" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-            >
+            <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -78,13 +53,8 @@
           <el-input v-model="ruleForm.url" placeholder="媒体链接，请在cos 获取"></el-input>
         </el-form-item>
         <el-form-item label="封面" prop="img">
-          <el-upload
-            class="avatar-uploader"
-            action=""
-            :show-file-list="false"
-            :before-upload="beforeAvatarUpload"
-            :on-progress="getTmp_secret_keys"
-          >
+          <el-upload class="avatar-uploader" action="" :show-file-list="false" :before-upload="beforeAvatarUpload"
+            :on-progress="getTmp_secret_keys">
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <i v-else class="el-icon-plus avatar-uploader-icon" />
           </el-upload>
@@ -95,12 +65,7 @@
         <el-button type="primary" @click="submit">修 改</el-button>
       </span>
     </el-dialog>
-    <el-dialog
-      title="删除"
-      :visible.sync="dialogVisible2"
-      width="30%"
-      :before-close="handleClose2"
-    >
+    <el-dialog title="删除" :visible.sync="dialogVisible2" width="30%" :before-close="handleClose2">
       <span>是否确认删除该数据？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible2 = false">取 消</el-button>
@@ -129,7 +94,7 @@ export default {
     return {
       newData: false,
       options: [],
-      fileType:[{value:'VIDEO',label:'视频'},{value:'AUDIO',label:'音频'}],
+      fileType: [{ value: 'VIDEO', label: '视频' }, { value: 'AUDIO', label: '音频' }],
       url: "",
       dialogVisible: false,
       dialogVisible2: false,
@@ -192,9 +157,10 @@ export default {
         data.category_id = data.category;
         this.$refs["ruleForm"].validate((valid) => {
           if (valid) {
+            // console.log('new media')
             newMedia({ ...data }).then((res) => {
+              // console.log('upload img')
               this.search();
-
               this.dialogVisible = false;
             });
           } else {
@@ -205,9 +171,11 @@ export default {
       } else {
         let data = { ...this.ruleForm };
         data.duration = data.duration.slice(6);
+        // console.log('updata media')
         this.$refs["ruleForm"].validate((valid) => {
           if (valid) {
             mediaUpdate(this.ruleForm.id, { ...data }).then((res) => {
+              // console.log('updata img')
               this.search();
               this.dialogVisible = false;
             });
@@ -224,12 +192,23 @@ export default {
     handleClose2() {
       this.dialogVisible2 = false;
     },
-    loadTable() {},
+    loadTable(param) {
+      console.log(param)
+      this.pager.currentPage = param;
+      this.search()
+    },
+    loadTableReSize(param){
+      console.log(param)
+      this.pager.pageSize = param;
+      this.search()
+    },
     search() {
       mediaList({
+        page_num: this.pager.currentPage,
+        page_size: this.pager.pageSize,
         title: this.title,
       }).then((res) => {
-        console.log( res.data)
+        console.log(res.data)
         this.tableData = res.data.list;
         this.pager.total = res.data.total;
       });
@@ -259,6 +238,7 @@ export default {
         this.key = res.data.key;
         let that = this;
         var data = new FormData();
+        console.log(res.data)
         data.append("file", file); //获取文件
         var config = {
           onUploadProgress: function (progressEvent) {
@@ -273,8 +253,10 @@ export default {
           .then(function (res) {
             that.imageUrl = URL.createObjectURL(file.raw);
             that.ruleForm.img = that.key;
+
+            console.log(that)
           })
-          .catch(function (err) {});
+          .catch(function (err) { console.log(err) });
       });
     },
   },
@@ -292,6 +274,7 @@ export default {
   box-shadow: 10px 10px 30px rgb(0 0 0 / 25%);
   border-radius: 30px;
 }
+
 .avatar-uploader {
   ::v-deep .el-upload {
     border: 1px dashed #d9d9d9;
@@ -299,6 +282,7 @@ export default {
     cursor: pointer;
     position: relative;
     overflow: hidden;
+
     &:hover {
       border-color: #409eff;
     }
@@ -313,38 +297,46 @@ export default {
   line-height: 178px;
   text-align: center;
 }
+
 .avatar {
   width: 178px;
   height: 178px;
   display: block;
 }
+
 .page {
   .search {
     display: flex;
     align-items: center;
     justify-content: right;
+
     .item {
       margin-left: 70px;
       display: flex;
       align-items: center;
       justify-content: right;
+
       &:first-child {
         margin-left: 0px;
       }
+
       .label {
         margin-right: 34px;
         white-space: nowrap;
       }
+
       ::v-deep .el-input__inner {
         height: 58px;
         line-height: 58px;
         background: #ffffff;
         border-radius: 12px;
       }
+
       ::v-deep .el-date-editor .el-range-separator {
         line-height: 51px;
       }
     }
+
     .searchBtn {
       cursor: pointer;
       width: 108px;
@@ -361,12 +353,14 @@ export default {
       margin-left: 20px;
     }
   }
+
   .main {
     margin-top: 33px;
     background: #ffffff;
     border-radius: 20px;
     padding: 14px;
     box-sizing: border-box;
+
     .title {
       display: flex;
       align-items: center;
